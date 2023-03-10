@@ -17,21 +17,17 @@ from dune.vtk import vtkUnstructuredGridWriter, vtkWriter, RangeTypes, FieldInfo
 if __name__ == "__main__":
     # help(iks)
     tic = time.perf_counter()
-    lowerLeft = []
-    upperRight = []
-
-
-    elements = []
-    for i in range(2):
-        lowerLeft.append(-1)
-        upperRight.append(1)
-        elements.append(3)
-
-    req= pyikarus.FErequirements()
-    req.addAffordance(iks.ScalarAffordances.mechanicalPotentialEnergy)
+    lowerLeft = [-1,-1]
+    upperRight = [1,1]
+    elements = [3,3]
 
     grid = dune.grid.structuredGrid(lowerLeft,upperRight,elements)
     grid.hierarchicalGrid.globalRefine(6)
+
+
+
+    req= pyikarus.FErequirements()
+    req.addAffordance(iks.ScalarAffordances.mechanicalPotentialEnergy)
 
     basisLagrange1 = dune.functions.defaultGlobalBasis(grid, dune.functions.Power(dune.functions.Lagrange(order=1),2))
     print('We have {} dofs.'.format(len(basisLagrange1)))

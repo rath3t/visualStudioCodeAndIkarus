@@ -1,3 +1,4 @@
 {
-    "image": "ikarusproject/ikarus-dev:latest"
+    "image": "ikarusproject/ikarus-dev:latest",
+    "containerUser": "root"
   }
