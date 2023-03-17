@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2022 The Ikarus Developers mueller@ibb.uni-stuttgart.de
 # SPDX-License-Identifier: LGPL-3.0-or-later
 
-import setpath
-setpath.set_path()
+# import setpath
+# setpath.set_path()
 import pyikarus as iks
 import pyikarus.finite_elements
 import pyikarus.utils
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     req.addAffordance(iks.ScalarAffordances.mechanicalPotentialEnergy)
 
     grid = dune.grid.structuredGrid(lowerLeft,upperRight,elements)
-    grid. hierarchicalGrid.globalRefine(0)
+    grid. hierarchicalGrid.globalRefine(8)
     basisLagrange1 = dune.functions.defaultGlobalBasis(grid, dune.functions.Power(dune.functions.Lagrange(order=1),2))
 
 
@@ -110,13 +110,29 @@ if __name__ == "__main__":
         dBig = assembler.createFullVector(dRedInput)
         reqL.insertGlobalSolution(iks.FESolutions.displacement,dBig)
         return assembler.getReducedMatrix(reqL).todense()
+    
+    from numpy.linalg import norm
+    maxiter = 100
+    abs_tolerance = 1e-8
+    d = np.zeros(assembler.reducedSize())
+    for k in range(maxiter):
+        R, K = gradAndhess(d)
+        r_norm = norm(R)
+    
+        deltad = sp.sparse.linalg.spsolve(K, R)
+        d -= deltad
+        print(k,r_norm,norm(deltad),energy(d))
+        if r_norm < abs_tolerance:
+            break
+
+    print("Energy at equilibrium: ",energy(d)) 
 
     print("energy(dRed):",energy(dRed))
     print("energyafer")
-    resultd = minimize(energy,x0=dRed,options={"disp": True},tol=1e-14)
-    resultd2 = minimize(energy,x0=dRed,jac=gradient,options={"disp": True},tol=1e-14)
-    resultd3 = minimize(energy,method="trust-constr",x0=dRed,jac=gradient,hess=hess,options={ 'disp': True})
-    resultd4 = sp.optimize.root(gradient,jac=hess,x0=dRed,options={ 'disp': True},tol=1e-10)
+    #resultd = minimize(energy,x0=dRed,options={"disp": True},tol=1e-14)
+    #resultd2 = minimize(energy,x0=dRed,jac=gradient,options={"disp": True},tol=1e-14)
+    #resultd3 = minimize(energy,method="trust-constr",x0=dRed,jac=gradient,hess=hess,options={ 'disp': True})
+    #resultd4 = sp.optimize.root(gradient,jac=hess,x0=dRed,options={ 'disp': True},tol=1e-10)
     # print(assembler.createFullVector(resultd.g))
     np.set_printoptions(precision=3)
 
