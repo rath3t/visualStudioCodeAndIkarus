@@ -1,4 +1,5 @@
 {
     "image": "ikarusproject/ikarus-dev:latest",
-    "containerUser": "root"
+    "containerUser": "root",
+    "forwardPorts": [5000],
   }
